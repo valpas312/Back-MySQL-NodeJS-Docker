@@ -4,26 +4,36 @@ import pool from "../db.js";
 const router = Router();
 
 //Create a new user
-router.post("/", (req, res) => {
-  const { name, email } = req.body;
-  const sql = "INSERT INTO users (name, email) VALUES (?, ?)";
-  pool.query(sql, [name, email], (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json({ message: "Usuario Creado", id: result.insertId, name, email });
-  });
+router.post("/", async (req, res) => {
+  const { username, email } = req.body;
+
+  if (!username || !email) {
+    return res.status(400).json({ error: "username y email son requeridos" });
+  }
+
+  try {
+    const [result] = await pool.query(
+      "INSERT INTO USERS (username, email) VALUES (?, ?)",
+      [username, email]
+    );
+
+    res.json({
+      message: "Usuario creado ✅",
+      userId: result.insertId,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 //Get all users
-router.get("/", (req, res) => {
-  const sql = "SELECT * FROM users";
-  pool.query(sql, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(results);
-  });
+router.get("/", async (req, res) => {
+ try {
+    const [rows] = await pool.query("SELECT * FROM USERS");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 //Get a user by ID
