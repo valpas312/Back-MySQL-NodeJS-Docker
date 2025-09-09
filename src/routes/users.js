@@ -36,34 +36,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-//Get a user by ID
-router.get("/:id", (req, res) => {
-  const sql = "SELECT * FROM users WHERE id = ?";
-  db.query(sql, [req.params.id], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    if (result.length === 0)
+//Get a user by email
+router.get("/:email", async (req, res) => {
+  const { email } = req.params;
+  try {
+    const [rows] = await pool.query("SELECT * FROM USERS WHERE email = ?", [email]);
+    if (rows.length <= 0)
       return res.status(404).json({ message: "Usuario no encontrado" });
-    res.json(result[0]);
-  });
-});
-
-//Update a user by ID
-router.put("/:id", (req, res) => {
-  const { name, email } = req.body;
-  const sql = "UPDATE users SET name=?, email=?, WHERE id=?";
-  db.query(sql, [name, email, req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ message: "Usuario actualizado" });
-  });
-});
-
-//Delete a user by ID
-router.delete("/:id", (req, res) => {
-  const sql = "DELETE FROM users WHERE id=?";
-  db.query(sql, [req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ message: "Usuario eliminado" });
-  });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;
