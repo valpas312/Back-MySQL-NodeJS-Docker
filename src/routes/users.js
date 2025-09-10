@@ -5,16 +5,16 @@ const router = Router();
 
 //Create a new user
 router.post("/", async (req, res) => {
-  const { username, email } = req.body;
+  const { username, email, rol } = req.body;
 
-  if (!username || !email) {
-    return res.status(400).json({ error: "username y email son requeridos" });
+  if (!username || !email || !rol) {
+    return res.status(400).json({ error: "username, rol e email son requeridos" });
   }
 
   try {
     const [result] = await pool.query(
-      "INSERT INTO USERS (username, email) VALUES (?, ?)",
-      [username, email]
+      "INSERT INTO USERS (username, email, rol) VALUES (?, ?, ?)",
+      [username, email, rol]
     );
 
     res.json({
@@ -54,4 +54,21 @@ router.get("/:email", async (req, res) => {
   }
 });
 
+//Update a user by id
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { username, email, rol } = req.body;
+  try {
+    const [result] = await pool.query(
+      "UPDATE USERS SET username = IFNULL(?, username), email = IFNULL(?, email), rol = IFNULL(?, rol) WHERE id = ?",
+      [username, email, id, rol]
+    );
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    const [rows] = await pool.query("SELECT * FROM USERS WHERE id = ?", [id]);
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 export default router;
