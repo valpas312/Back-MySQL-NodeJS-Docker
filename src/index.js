@@ -1,6 +1,9 @@
 import express from "express";
-import usersRouter from "./routes/users.js";
 import pool from "./db.js";
+
+// Importar rutas
+import usersRouter from "./routes/users.js";
+import teammatesRouter from "./routes/teammates.js";
 
 const app = express();
 app.use(express.json());
@@ -16,6 +19,9 @@ app.get("/ping", async (req, res) => {
 
 // CRUD operations for "users"
 app.use("/users", usersRouter);
+
+// CRUD operations for "teammates"
+app.use("/teammates", teammatesRouter);
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");

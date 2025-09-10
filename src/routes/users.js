@@ -28,8 +28,11 @@ router.post("/", async (req, res) => {
 
 //Get all users
 router.get("/", async (req, res) => {
- try {
+  try {
     const [rows] = await pool.query("SELECT * FROM USERS");
+    if (rows.length <= 0) {
+      return res.status(404).json({ message: "No hay usuarios" });
+    }
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -40,7 +43,9 @@ router.get("/", async (req, res) => {
 router.get("/:email", async (req, res) => {
   const { email } = req.params;
   try {
-    const [rows] = await pool.query("SELECT * FROM USERS WHERE email = ?", [email]);
+    const [rows] = await pool.query("SELECT * FROM USERS WHERE email = ?", [
+      email,
+    ]);
     if (rows.length <= 0)
       return res.status(404).json({ message: "Usuario no encontrado" });
     res.json(rows[0]);
