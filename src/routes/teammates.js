@@ -42,7 +42,7 @@ router.post("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT u.id, u.username, u.email, U.rol 
+      `SELECT u.id, u.username, u.email, u.rol 
        FROM USERS_TEAMMATES ut
        JOIN USERS u ON ut.teammate_id = u.id
        WHERE ut.user_id = ?`,
