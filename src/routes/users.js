@@ -57,14 +57,14 @@ router.get("/:email", async (req, res) => {
 //Update a user by id
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { username, email, rol } = req.body;
+  const { username, email, rol, status } = req.body;
   try {
     const [result] = await pool.query(
-      "UPDATE USERS SET username = IFNULL(?, username), email = IFNULL(?, email), rol = IFNULL(?, rol) WHERE id = ?",
-      [username, email, id, rol]
+      "UPDATE USERS SET username = IFNULL(?, username), email = IFNULL(?, email), rol = IFNULL(?, rol), status = IFNULL(?, status) WHERE id = ?",
+      [username, email, rol, status, id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ message: "Usuario no encontrado", id });
     const [rows] = await pool.query("SELECT * FROM USERS WHERE id = ?", [id]);
     res.json(rows[0]);
   } catch (err) {
